@@ -1,1 +1,46 @@
+# IDE
 .vscode
+.claude
+.vs
+*.user
+*.suo
+
+# Build outputs
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM64/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Windows App SDK / WinUI
+AppPackages/
+BundleArtifacts/
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.appxupload
+
+# Logs
+*.log
+msbuild.log
+
+# Test results
+TestResults/
+*.trx
+
+# Misc
+*.tmp
+*.temp
+*.cache
+.DS_Store
+Thumbs.db

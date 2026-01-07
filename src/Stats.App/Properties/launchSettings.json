@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Stats.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Stats.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
