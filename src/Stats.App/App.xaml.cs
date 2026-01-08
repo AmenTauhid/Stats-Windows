@@ -1,51 +1,55 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Navigation;
+using Stats.Core.Interfaces;
+using Stats.Hardware;
 
-namespace Stats.App
+namespace Stats.App;
+
+public partial class App : Application
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
-    public partial class App : Application
+    private Window? _window;
+
+    public static IServiceProvider Services { get; private set; } = null!;
+
+    public App()
     {
-        private Window window = Window.Current;
+        this.InitializeComponent();
 
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App()
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        Services = services.BuildServiceProvider();
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        // Hardware monitoring
+        services.AddSingleton<IHardwareMonitor, HardwareMonitorService>();
+
+        // ViewModels
+        services.AddTransient<MainViewModel>();
+    }
+
+    protected override async void OnLaunched(LaunchActivatedEventArgs e)
+    {
+        _window ??= new Window();
+
+        if (_window.Content is not Frame rootFrame)
         {
-            this.InitializeComponent();
+            rootFrame = new Frame();
+            rootFrame.NavigationFailed += OnNavigationFailed;
+            _window.Content = rootFrame;
         }
 
-        /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
-        /// will be used such as when the application is launched to open a specific file.
-        /// </summary>
-        /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
-        {
-            window ??= new Window();
+        _ = rootFrame.Navigate(typeof(MainPage), e.Arguments);
+        _window.Activate();
 
-            if (window.Content is not Frame rootFrame)
-            {
-                rootFrame = new Frame();
-                rootFrame.NavigationFailed += OnNavigationFailed;
-                window.Content = rootFrame;
-            }
+        // Start hardware monitoring
+        var monitor = Services.GetRequiredService<IHardwareMonitor>();
+        await monitor.StartAsync();
+    }
 
-            _ = rootFrame.Navigate(typeof(MainPage), e.Arguments);
-            window.Activate();
-        }
-
-        /// <summary>
-        /// Invoked when Navigation to a certain page fails
-        /// </summary>
-        /// <param name="sender">The Frame which failed navigation</param>
-        /// <param name="e">Details about the navigation failure</param>
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
-        {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
-        }
+    void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+    {
+        throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
     }
 }

@@ -1,22 +1,85 @@
-﻿namespace Stats.App.ViewModels
+using Microsoft.UI.Dispatching;
+using Stats.Core.Interfaces;
+using Stats.Core.Models;
+
+namespace Stats.App.ViewModels;
+
+public partial class MainViewModel : BaseViewModel
 {
-    public partial class MainViewModel : BaseViewModel
+    private readonly IHardwareMonitor _monitor;
+    private readonly DispatcherQueue _dispatcherQueue;
+
+    public MainViewModel(IHardwareMonitor monitor)
     {
-        private int count = 0;
+        _monitor = monitor;
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        Title = "Stats";
 
-        public MainViewModel()
+        _monitor.CpuUpdated += OnCpuUpdated;
+        _monitor.MemoryUpdated += OnMemoryUpdated;
+        _monitor.GpuUpdated += OnGpuUpdated;
+    }
+
+    [ObservableProperty]
+    private string _cpuName = "Loading...";
+
+    [ObservableProperty]
+    private float _cpuLoad;
+
+    [ObservableProperty]
+    private float _cpuTemperature;
+
+    [ObservableProperty]
+    private string _memoryUsed = "0 GB";
+
+    [ObservableProperty]
+    private string _memoryTotal = "0 GB";
+
+    [ObservableProperty]
+    private float _memoryPercentage;
+
+    [ObservableProperty]
+    private string _gpuName = "Loading...";
+
+    [ObservableProperty]
+    private float _gpuLoad;
+
+    [ObservableProperty]
+    private float _gpuTemperature;
+
+    private void OnCpuUpdated(object? sender, CpuInfo cpu)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
         {
-            Title = "Home";
-        }
+            CpuName = cpu.Name;
+            CpuLoad = cpu.TotalLoad;
+            CpuTemperature = cpu.PackageTemperature;
+        });
+    }
 
-        [ObservableProperty]
-        private string _countText = "Current count: 0";
-
-        [RelayCommand]
-        private void Increment()
+    private void OnMemoryUpdated(object? sender, MemoryInfo memory)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
         {
-            count++;
-            CountText = $"Current count: {count}";
-        }
+            MemoryUsed = FormatBytes(memory.Used);
+            MemoryTotal = FormatBytes(memory.Total);
+            MemoryPercentage = memory.UsedPercentage;
+        });
+    }
+
+    private void OnGpuUpdated(object? sender, GpuInfo gpu)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            GpuName = gpu.Name;
+            GpuLoad = gpu.CoreLoad;
+            GpuTemperature = gpu.Temperature;
+        });
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        const long GB = 1024L * 1024 * 1024;
+        return $"{bytes / (double)GB:F1} GB";
     }
 }

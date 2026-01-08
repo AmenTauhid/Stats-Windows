@@ -1,13 +1,7 @@
-﻿namespace Stats.App.ViewModels
+namespace Stats.App.ViewModels;
+
+public partial class BaseViewModel : ObservableObject
 {
-    public partial class BaseViewModel : ObservableObject
-    {
-        public BaseViewModel()
-        {
-
-        }
-
-        [ObservableProperty]
-        private string _title = string.Empty;
-    }
+    [ObservableProperty]
+    private string _title = string.Empty;
 }
