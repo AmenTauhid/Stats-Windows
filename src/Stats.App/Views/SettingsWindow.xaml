@@ -152,6 +152,235 @@
                     </Border>
                 </StackPanel>
 
+                <!-- Alerts Section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Alerts" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8"
+                        Padding="16">
+                        <StackPanel Spacing="16">
+                            <!-- Enable Temperature Alerts -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Temperature alerts" />
+                                    <TextBlock
+                                        Text="Show notifications when temperature exceeds threshold"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <ToggleSwitch
+                                    x:Name="TempAlertsToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="TempAlertsToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- CPU Temp Threshold -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="CPU temperature threshold" />
+                                    <TextBlock
+                                        Text="Alert when CPU exceeds this temperature"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <NumberBox
+                                    x:Name="CpuTempThresholdBox"
+                                    Grid.Column="1"
+                                    Width="100"
+                                    Minimum="50"
+                                    Maximum="110"
+                                    SpinButtonPlacementMode="Compact"
+                                    ValueChanged="CpuTempThresholdBox_ValueChanged" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- GPU Temp Threshold -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="GPU temperature threshold" />
+                                    <TextBlock
+                                        Text="Alert when GPU exceeds this temperature"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <NumberBox
+                                    x:Name="GpuTempThresholdBox"
+                                    Grid.Column="1"
+                                    Width="100"
+                                    Minimum="50"
+                                    Maximum="110"
+                                    SpinButtonPlacementMode="Compact"
+                                    ValueChanged="GpuTempThresholdBox_ValueChanged" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Modules Section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Modules" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8"
+                        Padding="16">
+                        <StackPanel Spacing="16">
+                            <!-- CPU -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="CPU monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="CpuModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- GPU -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="GPU monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="GpuModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- Memory -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Memory monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="MemoryModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- Disk -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Disk monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="DiskModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- Network -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Network monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="NetworkModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- Battery -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Battery monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="BatteryModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- Fans -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Fan monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="FanModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                            <!-- Sensors -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Sensor monitoring" VerticalAlignment="Center" />
+                                <ToggleSwitch
+                                    x:Name="SensorModuleToggle"
+                                    Grid.Column="1"
+                                    OnContent=""
+                                    OffContent=""
+                                    Toggled="ModuleToggle_Toggled" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
                 <!-- About Section -->
                 <StackPanel Spacing="12">
                     <TextBlock Text="About" Style="{StaticResource SubtitleTextBlockStyle}" />

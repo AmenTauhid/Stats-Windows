@@ -22,6 +22,8 @@ public partial class MainViewModel : BaseViewModel
         _monitor.DisksUpdated += OnDisksUpdated;
         _monitor.NetworksUpdated += OnNetworksUpdated;
         _monitor.BatteryUpdated += OnBatteryUpdated;
+        _monitor.FansUpdated += OnFansUpdated;
+        _monitor.SensorsUpdated += OnSensorsUpdated;
     }
 
     // CPU Properties
@@ -83,6 +85,23 @@ public partial class MainViewModel : BaseViewModel
 
     [ObservableProperty]
     private string _batteryTimeRemaining = "";
+
+    // Fan Properties
+    [ObservableProperty]
+    private ObservableCollection<FanViewModel> _fans = [];
+
+    [ObservableProperty]
+    private bool _hasFans;
+
+    // Sensor Properties
+    [ObservableProperty]
+    private ObservableCollection<SensorViewModel> _temperatures = [];
+
+    [ObservableProperty]
+    private ObservableCollection<SensorViewModel> _voltages = [];
+
+    [ObservableProperty]
+    private ObservableCollection<SensorViewModel> _powers = [];
 
     // Event Handlers
     private void OnCpuUpdated(object? sender, CpuInfo cpu)
@@ -185,6 +204,61 @@ public partial class MainViewModel : BaseViewModel
         });
     }
 
+    private void OnFansUpdated(object? sender, IReadOnlyList<FanInfo> fans)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            HasFans = fans.Count > 0;
+            Fans.Clear();
+            foreach (var fan in fans.Where(f => f.CurrentRpm > 0))
+            {
+                Fans.Add(new FanViewModel
+                {
+                    Name = fan.Name,
+                    Rpm = $"{fan.CurrentRpm:F0} RPM",
+                    SpeedPercentage = fan.SpeedPercentage ?? 0
+                });
+            }
+        });
+    }
+
+    private void OnSensorsUpdated(object? sender, IReadOnlyList<SensorInfo> sensors)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            Temperatures.Clear();
+            Voltages.Clear();
+            Powers.Clear();
+
+            foreach (var sensor in sensors)
+            {
+                var vm = new SensorViewModel
+                {
+                    Name = sensor.Name,
+                    HardwareName = sensor.HardwareName,
+                    Value = $"{sensor.Value:F1}",
+                    Unit = sensor.Unit
+                };
+
+                switch (sensor.Category)
+                {
+                    case SensorCategory.Temperature:
+                        if (sensor.Value > 0)
+                            Temperatures.Add(vm);
+                        break;
+                    case SensorCategory.Voltage:
+                        if (sensor.Value > 0)
+                            Voltages.Add(vm);
+                        break;
+                    case SensorCategory.Power:
+                        if (sensor.Value > 0)
+                            Powers.Add(vm);
+                        break;
+                }
+            }
+        });
+    }
+
     // Formatters
     private static string FormatBytes(long bytes)
     {
@@ -236,4 +310,31 @@ public partial class NetworkViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isConnected;
+}
+
+public partial class FanViewModel : ObservableObject
+{
+    [ObservableProperty]
+    private string _name = "";
+
+    [ObservableProperty]
+    private string _rpm = "0 RPM";
+
+    [ObservableProperty]
+    private float _speedPercentage;
+}
+
+public partial class SensorViewModel : ObservableObject
+{
+    [ObservableProperty]
+    private string _name = "";
+
+    [ObservableProperty]
+    private string _hardwareName = "";
+
+    [ObservableProperty]
+    private string _value = "0";
+
+    [ObservableProperty]
+    private string _unit = "";
 }

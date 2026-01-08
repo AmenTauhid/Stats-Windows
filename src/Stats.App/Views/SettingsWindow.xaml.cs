@@ -30,7 +30,7 @@ public sealed partial class SettingsWindow : Window
 
         // Configure window
         var appWindow = WindowHelper.GetAppWindow(this);
-        appWindow.Resize(new Windows.Graphics.SizeInt32(500, 650));
+        appWindow.Resize(new Windows.Graphics.SizeInt32(500, 900));
         appWindow.Title = "Settings - Stats";
 
         LoadSettings();
@@ -64,6 +64,21 @@ public sealed partial class SettingsWindow : Window
             _ => 1 // Default 1 second
         };
         UpdateIntervalComboBox.SelectedIndex = intervalIndex;
+
+        // Alerts
+        TempAlertsToggle.IsOn = settings.EnableTemperatureAlerts;
+        CpuTempThresholdBox.Value = settings.CpuTempThreshold;
+        GpuTempThresholdBox.Value = settings.GpuTempThreshold;
+
+        // Modules
+        CpuModuleToggle.IsOn = settings.EnableCpuMonitoring;
+        GpuModuleToggle.IsOn = settings.EnableGpuMonitoring;
+        MemoryModuleToggle.IsOn = settings.EnableMemoryMonitoring;
+        DiskModuleToggle.IsOn = settings.EnableDiskMonitoring;
+        NetworkModuleToggle.IsOn = settings.EnableNetworkMonitoring;
+        BatteryModuleToggle.IsOn = settings.EnableBatteryMonitoring;
+        FanModuleToggle.IsOn = settings.EnableFanMonitoring;
+        SensorModuleToggle.IsOn = settings.EnableSensorMonitoring;
     }
 
     private void StartWithWindowsToggle_Toggled(object sender, RoutedEventArgs e)
@@ -113,6 +128,45 @@ public sealed partial class SettingsWindow : Window
                 _monitor.SetUpdateInterval(TimeSpan.FromMilliseconds(interval));
             }
         }
+    }
+
+    private void TempAlertsToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        _configService.Settings.EnableTemperatureAlerts = TempAlertsToggle.IsOn;
+        _configService.Save();
+    }
+
+    private void CpuTempThresholdBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        if (_isInitializing) return;
+
+        _configService.Settings.CpuTempThreshold = (float)args.NewValue;
+        _configService.Save();
+    }
+
+    private void GpuTempThresholdBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        if (_isInitializing) return;
+
+        _configService.Settings.GpuTempThreshold = (float)args.NewValue;
+        _configService.Save();
+    }
+
+    private void ModuleToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        _configService.Settings.EnableCpuMonitoring = CpuModuleToggle.IsOn;
+        _configService.Settings.EnableGpuMonitoring = GpuModuleToggle.IsOn;
+        _configService.Settings.EnableMemoryMonitoring = MemoryModuleToggle.IsOn;
+        _configService.Settings.EnableDiskMonitoring = DiskModuleToggle.IsOn;
+        _configService.Settings.EnableNetworkMonitoring = NetworkModuleToggle.IsOn;
+        _configService.Settings.EnableBatteryMonitoring = BatteryModuleToggle.IsOn;
+        _configService.Settings.EnableFanMonitoring = FanModuleToggle.IsOn;
+        _configService.Settings.EnableSensorMonitoring = SensorModuleToggle.IsOn;
+        _configService.Save();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)

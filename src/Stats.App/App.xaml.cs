@@ -42,6 +42,7 @@ public partial class App : Application
         services.AddSingleton<TrayIconService>();
         services.AddSingleton<StartupService>();
         services.AddSingleton<ThemeService>();
+        services.AddSingleton<AlertService>();
 
         // ViewModels
         services.AddSingleton<MainViewModel>();
@@ -90,6 +91,9 @@ public partial class App : Application
         // Apply saved theme
         var themeService = Services.GetRequiredService<ThemeService>();
         themeService.ApplyTheme(configService.Settings.Theme);
+
+        // Initialize alert service
+        _ = Services.GetRequiredService<AlertService>();
 
         // Handle window close - minimize to tray instead
         _appWindow.Closing += OnWindowClosing;
