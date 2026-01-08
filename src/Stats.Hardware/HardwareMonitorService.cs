@@ -1,10 +1,11 @@
+using System.Text.RegularExpressions;
 using LibreHardwareMonitor.Hardware;
 using Stats.Core.Interfaces;
 using Stats.Core.Models;
 
 namespace Stats.Hardware;
 
-public sealed class HardwareMonitorService : IHardwareMonitor
+public sealed partial class HardwareMonitorService : IHardwareMonitor
 {
     private readonly Computer _computer;
     private readonly UpdateVisitor _updateVisitor;
@@ -12,6 +13,10 @@ public sealed class HardwareMonitorService : IHardwareMonitor
     private CancellationTokenSource? _cts;
     private Task? _monitorTask;
     private bool _disposed;
+
+    // Cached regex for core ID extraction
+    [GeneratedRegex(@"#(\d+)", RegexOptions.Compiled)]
+    private static partial Regex CoreIdRegex();
 
     public bool IsRunning { get; private set; }
     public TimeSpan UpdateInterval { get; set; } = TimeSpan.FromSeconds(1);
@@ -114,10 +119,11 @@ public sealed class HardwareMonitorService : IHardwareMonitor
 
     private void ProcessHardware()
     {
-        var sensors = new List<SensorInfo>();
-        var fans = new List<FanInfo>();
-        var disks = new List<DiskInfo>();
-        var networks = new List<NetworkInfo>();
+        // Pre-allocate with reasonable capacity to reduce allocations
+        var sensors = new List<SensorInfo>(64);
+        var fans = new List<FanInfo>(8);
+        var disks = new List<DiskInfo>(4);
+        var networks = new List<NetworkInfo>(4);
 
         foreach (var hardware in _computer.Hardware)
         {
@@ -231,7 +237,7 @@ public sealed class HardwareMonitorService : IHardwareMonitor
         {
             if (sensor.Name.StartsWith("Core #") || sensor.Name.StartsWith("CPU Core #"))
             {
-                var match = System.Text.RegularExpressions.Regex.Match(sensor.Name, @"#(\d+)");
+                var match = CoreIdRegex().Match(sensor.Name);
                 if (match.Success && int.TryParse(match.Groups[1].Value, out int coreId))
                 {
                     var core = cores.FirstOrDefault(c => c.CoreId == coreId);

@@ -17,6 +17,19 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>Stats.App</RootNamespace>
 
+        <!-- Performance Optimizations -->
+        <TieredCompilation>true</TieredCompilation>
+        <TieredPGO>true</TieredPGO>
+    </PropertyGroup>
+
+    <!-- Release Configuration Optimizations -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <Optimize>true</Optimize>
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <!-- App Options -->
         <UseRidGraph>true</UseRidGraph>
         <Platforms>x86;x64;ARM64</Platforms>
