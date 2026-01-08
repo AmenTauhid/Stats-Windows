@@ -1,5 +1,7 @@
 using H.NotifyIcon;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Stats.App.Views.Widgets;
 using Stats.Core.Interfaces;
 using Stats.Core.Models;
 
@@ -8,9 +10,11 @@ namespace Stats.App.Services;
 public sealed class TrayIconService : IDisposable
 {
     private readonly IHardwareMonitor _monitor;
+    private WidgetService? _widgetService;
     private TaskbarIcon? _trayIcon;
     private bool _disposed;
     private float _lastCpuLoad;
+    private readonly Dictionary<WidgetType, ToggleMenuFlyoutItem> _widgetMenuItems = [];
 
     public event EventHandler? ShowDashboardRequested;
     public event EventHandler? ExitRequested;
@@ -19,6 +23,12 @@ public sealed class TrayIconService : IDisposable
     {
         _monitor = monitor;
         _monitor.CpuUpdated += OnCpuUpdated;
+    }
+
+    public void SetWidgetService(WidgetService widgetService)
+    {
+        _widgetService = widgetService;
+        _widgetService.WidgetVisibilityChanged += OnWidgetVisibilityChanged;
     }
 
     public void Initialize(XamlRoot xamlRoot)
@@ -39,11 +49,44 @@ public sealed class TrayIconService : IDisposable
 
         contextMenu.Items.Add(new MenuFlyoutSeparator());
 
+        // Widgets submenu
+        var widgetsSubmenu = new MenuFlyoutSubItem { Text = "Widgets" };
+
+        foreach (WidgetType widgetType in Enum.GetValues<WidgetType>())
+        {
+            var menuItem = new ToggleMenuFlyoutItem
+            {
+                Text = widgetType.ToString(),
+                IsChecked = _widgetService?.IsWidgetVisible(widgetType) ?? false
+            };
+            var type = widgetType; // Capture for closure
+            menuItem.Click += (s, e) => OnWidgetToggle(type);
+            widgetsSubmenu.Items.Add(menuItem);
+            _widgetMenuItems[widgetType] = menuItem;
+        }
+
+        contextMenu.Items.Add(widgetsSubmenu);
+
+        contextMenu.Items.Add(new MenuFlyoutSeparator());
+
         var exitItem = new MenuFlyoutItem { Text = "Exit" };
         exitItem.Click += (s, e) => OnExit();
         contextMenu.Items.Add(exitItem);
 
         _trayIcon.ContextFlyout = contextMenu;
+    }
+
+    private void OnWidgetToggle(WidgetType widgetType)
+    {
+        _widgetService?.ToggleWidget(widgetType);
+    }
+
+    private void OnWidgetVisibilityChanged(object? sender, WidgetType widgetType)
+    {
+        if (_widgetMenuItems.TryGetValue(widgetType, out var menuItem))
+        {
+            menuItem.IsChecked = _widgetService?.IsWidgetVisible(widgetType) ?? false;
+        }
     }
 
     private void OnCpuUpdated(object? sender, CpuInfo cpu)
