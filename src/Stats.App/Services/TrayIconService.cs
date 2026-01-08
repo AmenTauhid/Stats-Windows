@@ -17,6 +17,7 @@ public sealed class TrayIconService : IDisposable
     private readonly Dictionary<WidgetType, ToggleMenuFlyoutItem> _widgetMenuItems = [];
 
     public event EventHandler? ShowDashboardRequested;
+    public event EventHandler? SettingsRequested;
     public event EventHandler? ExitRequested;
 
     public TrayIconService(IHardwareMonitor monitor)
@@ -66,6 +67,12 @@ public sealed class TrayIconService : IDisposable
         }
 
         contextMenu.Items.Add(widgetsSubmenu);
+
+        contextMenu.Items.Add(new MenuFlyoutSeparator());
+
+        var settingsItem = new MenuFlyoutItem { Text = "Settings" };
+        settingsItem.Click += (s, e) => OnSettings();
+        contextMenu.Items.Add(settingsItem);
 
         contextMenu.Items.Add(new MenuFlyoutSeparator());
 
@@ -119,6 +126,11 @@ public sealed class TrayIconService : IDisposable
     private void OnShowDashboard()
     {
         ShowDashboardRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnSettings()
+    {
+        SettingsRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnExit()

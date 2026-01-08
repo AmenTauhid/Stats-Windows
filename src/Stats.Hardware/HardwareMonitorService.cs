@@ -82,6 +82,17 @@ public sealed class HardwareMonitorService : IHardwareMonitor
         IsRunning = false;
     }
 
+    public void SetUpdateInterval(TimeSpan interval)
+    {
+        UpdateInterval = interval;
+        if (IsRunning && _timer != null)
+        {
+            // PeriodicTimer doesn't support changing interval, so recreate it
+            _timer.Dispose();
+            _timer = new PeriodicTimer(UpdateInterval);
+        }
+    }
+
     private async Task MonitorLoopAsync(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested && _timer != null)

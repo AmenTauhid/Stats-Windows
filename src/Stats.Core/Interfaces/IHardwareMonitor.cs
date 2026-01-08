@@ -9,6 +9,7 @@ public interface IHardwareMonitor : IDisposable
 
     Task StartAsync(CancellationToken cancellationToken = default);
     Task StopAsync(CancellationToken cancellationToken = default);
+    void SetUpdateInterval(TimeSpan interval);
 
     event EventHandler<CpuInfo>? CpuUpdated;
     event EventHandler<GpuInfo>? GpuUpdated;

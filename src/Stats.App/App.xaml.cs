@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Navigation;
 using Stats.App.Services;
+using Stats.App.Views;
 using Stats.Configuration;
 using Stats.Core.Interfaces;
 using Stats.Hardware;
@@ -15,6 +16,7 @@ public partial class App : Application
     private AppWindow? _appWindow;
     private TrayIconService? _trayService;
     private WidgetService? _widgetService;
+    private SettingsWindow? _settingsWindow;
 
     public static IServiceProvider Services { get; private set; } = null!;
     public static Window? MainWindow { get; private set; }
@@ -38,6 +40,8 @@ public partial class App : Application
 
         // Services
         services.AddSingleton<TrayIconService>();
+        services.AddSingleton<StartupService>();
+        services.AddSingleton<ThemeService>();
 
         // ViewModels
         services.AddSingleton<MainViewModel>();
@@ -63,13 +67,16 @@ public partial class App : Application
         _ = rootFrame.Navigate(typeof(MainPage), e.Arguments);
         _window.Activate();
 
-        // Start hardware monitoring
+        // Get services
+        var configService = Services.GetRequiredService<ConfigurationService>();
         var monitor = Services.GetRequiredService<IHardwareMonitor>();
+        var viewModel = Services.GetRequiredService<MainViewModel>();
+
+        // Start hardware monitoring with saved update interval
+        monitor.UpdateInterval = TimeSpan.FromMilliseconds(configService.Settings.UpdateIntervalMs);
         await monitor.StartAsync();
 
         // Initialize widget service
-        var viewModel = Services.GetRequiredService<MainViewModel>();
-        var configService = Services.GetRequiredService<ConfigurationService>();
         _widgetService = new WidgetService(viewModel, configService);
 
         // Initialize tray icon
@@ -77,10 +84,21 @@ public partial class App : Application
         _trayService.SetWidgetService(_widgetService);
         _trayService.Initialize(_window.Content.XamlRoot);
         _trayService.ShowDashboardRequested += OnShowDashboard;
+        _trayService.SettingsRequested += OnShowSettings;
         _trayService.ExitRequested += OnExit;
+
+        // Apply saved theme
+        var themeService = Services.GetRequiredService<ThemeService>();
+        themeService.ApplyTheme(configService.Settings.Theme);
 
         // Handle window close - minimize to tray instead
         _appWindow.Closing += OnWindowClosing;
+
+        // Check if should start minimized
+        if (configService.Settings.StartMinimized)
+        {
+            _appWindow.Hide();
+        }
     }
 
     private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -94,6 +112,24 @@ public partial class App : Application
     {
         _appWindow?.Show();
         _window?.Activate();
+    }
+
+    private void OnShowSettings(object? sender, EventArgs e)
+    {
+        if (_settingsWindow != null)
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+
+        var configService = Services.GetRequiredService<ConfigurationService>();
+        var startupService = Services.GetRequiredService<StartupService>();
+        var themeService = Services.GetRequiredService<ThemeService>();
+        var monitor = Services.GetRequiredService<IHardwareMonitor>();
+
+        _settingsWindow = new SettingsWindow(configService, startupService, themeService, monitor);
+        _settingsWindow.Closed += (s, args) => _settingsWindow = null;
+        _settingsWindow.Activate();
     }
 
     private void OnExit(object? sender, EventArgs e)
