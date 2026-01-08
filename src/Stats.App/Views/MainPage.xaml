@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Stats.App.ViewModels"
     mc:Ignorable="d">
 
     <Grid Padding="24">
@@ -52,7 +53,7 @@
                             </TextBlock>
                         </Grid>
 
-                        <TextBlock>
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                             <Run Text="Temperature: " />
                             <Run Text="{x:Bind ViewModel.CpuTemperature, Mode=OneWay}" />
                             <Run Text=" C" />
@@ -91,7 +92,7 @@
                             </TextBlock>
                         </Grid>
 
-                        <TextBlock>
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                             <Run Text="Temperature: " />
                             <Run Text="{x:Bind ViewModel.GpuTemperature, Mode=OneWay}" />
                             <Run Text=" C" />
@@ -130,6 +131,167 @@
                                 VerticalAlignment="Center">
                                 <Run Text="{x:Bind ViewModel.MemoryPercentage, Mode=OneWay}" />
                                 <Run Text="%" />
+                            </TextBlock>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Network Section -->
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Network" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Download" Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.TotalDownloadSpeed, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Upload" Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.TotalUploadSpeed, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Networks, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:NetworkViewModel">
+                                    <Border Padding="0,8,0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="1" Margin="8,0"
+                                                       Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                                <Run Text="{x:Bind DownloadSpeed, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="2"
+                                                       Foreground="{ThemeResource SystemFillColorCautionBrush}">
+                                                <Run Text="{x:Bind UploadSpeed, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+
+                <!-- Disk Section -->
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Storage" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Disks, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DiskViewModel">
+                                    <Border Padding="0,4">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                           Margin="0,0,12,0">
+                                                    <Run Text="R: " />
+                                                    <Run Text="{x:Bind ReadSpeed, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="1"
+                                                           Foreground="{ThemeResource SystemFillColorCautionBrush}">
+                                                    <Run Text="W: " />
+                                                    <Run Text="{x:Bind WriteSpeed, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="2" HorizontalAlignment="Right"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Visibility="{x:Bind Temperature, Mode=OneWay, Converter={StaticResource GreaterThanZeroToVisibility}}">
+                                                    <Run Text="{x:Bind Temperature, Mode=OneWay}" />
+                                                    <Run Text=" C" />
+                                                </TextBlock>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+
+                <!-- Battery Section (only shown if battery present) -->
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="16"
+                    Visibility="{x:Bind ViewModel.HasBattery, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Spacing="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Battery" Style="{StaticResource SubtitleTextBlockStyle}" />
+                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.BatteryStatus, Mode=OneWay}"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <ProgressBar
+                                Value="{x:Bind ViewModel.BatteryLevel, Mode=OneWay}"
+                                Maximum="100"
+                                Height="8"
+                                CornerRadius="4" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center">
+                                <Run Text="{x:Bind ViewModel.BatteryLevel, Mode=OneWay}" />
+                                <Run Text="%" />
+                            </TextBlock>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                <Run Text="Health: " />
+                                <Run Text="{x:Bind ViewModel.BatteryHealth, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Visibility="{x:Bind ViewModel.BatteryTimeRemaining, Mode=OneWay, Converter={StaticResource StringNotEmptyToVisibility}}">
+                                <Run Text="Time: " />
+                                <Run Text="{x:Bind ViewModel.BatteryTimeRemaining, Mode=OneWay}" />
                             </TextBlock>
                         </Grid>
                     </StackPanel>
